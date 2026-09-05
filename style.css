@@ -10,7 +10,7 @@ a{color:inherit}
 .top{position:absolute;z-index:20;left:0;right:0;padding:23px 0;border-bottom:1px solid var(--line)}
 nav{display:flex;align-items:center;justify-content:space-between}
 .brand{color:var(--cream);text-decoration:none;font-size:21px;font-weight:800;letter-spacing:-1px}
-.brand span{color:#d6a65a}
+.brand-text span{color:#d6a65a}
 .links{display:flex;align-items:center;gap:29px}
 .links a{
   position:relative;
