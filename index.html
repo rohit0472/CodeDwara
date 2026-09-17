@@ -22,7 +22,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Crect width='240' height='240' rx='48' fill='%2310100f'/%3E%3Cpath d='M80 198 V132 A40 40 0 0 1 160 132 V198' fill='none' stroke='%23d6a65a' stroke-width='17' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="assets/logo-icon.png">
+  <link rel="apple-touch-icon" href="assets/logo-icon.png">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -44,7 +45,7 @@
     "name": "CodeDwara",
     "url": "https://codedwara.netlify.app/",
     "description": "CodeDwara designs and builds premium websites, online stores, booking systems and custom web apps for ambitious local businesses.",
-    "email": "hello@codedwara.com",
+    "email": "codedwara@gmail.com",
     "areaServed": "IN",
     "priceRange": "₹₹"
   }
@@ -55,30 +56,24 @@
   <header class="top">
     <nav class="wrap">
       <a class="brand" href="#home">
-        <svg class="brand-icon" viewBox="0 0 240 240" aria-hidden="true">
-          <defs>
-            <linearGradient id="brandGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#e6bc73"/>
-              <stop offset="100%" stop-color="#946a2c"/>
-            </linearGradient>
-          </defs>
-          <path d="M74 208 V138 A46 46 0 0 1 166 138 V208" fill="none" stroke="url(#brandGrad)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img class="brand-icon" src="assets/logo-icon.png" alt="CodeDwara" width="36" height="36">
         <span class="brand-text">Code<span>Dwara</span></span>
       </a>
       <div class="links" id="navLinks">
         <a href="#services">What we do</a>
+        <a href="#responsive">Every device</a>
         <a href="#process">Our process</a>
         <a href="#why-us">Why us</a>
         <a href="about.html">About</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="#contact" class="button">Start a project ↗</a>
+        <a href="#contact" class="button">Start a project <span class="arrow">↗</span></a>
       </div>
       <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
         <span></span><span></span><span></span>
       </button>
     </nav>
+    <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
   </header>
 
   <main>
@@ -104,7 +99,7 @@
         <h1>Your business deserves a <i>doorway</i> to more.</h1>
         <p>We design and build refined websites and web apps that make local businesses look established, feel memorable, and turn visitors into customers.</p>
         <div class="hero-actions">
-          <a href="#contact" class="button">Build your presence ↗</a>
+          <a href="#contact" class="button">Build your presence <span class="arrow">↗</span></a>
           <a href="#services" class="button dark">Explore services</a>
         </div>
       </div>
@@ -149,6 +144,84 @@
           <article class="service reveal"><span class="num">04</span><h3>Care & support</h3><p>Ongoing updates, fixes and small improvements, so your site stays fast and current after launch.</p></article>
           <article class="service reveal"><span class="num">05</span><h3>Local SEO basics</h3><p>Titles, descriptions and Google Business setup so nearby customers can actually find you.</p></article>
           <article class="service reveal"><span class="num">06</span><h3>Brand essentials</h3><p>A simple logo, colour palette and type system if you're starting without one yet.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section showcase" id="responsive">
+      <div class="wrap">
+        <div class="heading reveal">
+          <div class="eyebrow">Every screen, considered</div>
+          <h2>One layout, <i>every device.</i></h2>
+          <p>We design at both ends of the scale from the start, so the site your customer opens on a phone at a red light feels like the same considered place as the one you open on a laptop.</p>
+        </div>
+
+        <div class="showcase-body">
+          <div class="showcase-stage reveal" id="showcaseStage">
+            <div class="device device-laptop">
+              <div class="laptop-lid">
+                <span class="laptop-cam" aria-hidden="true"></span>
+                <div class="laptop-screen">
+                  <div class="mini-nav">
+                    <span class="mini-mark"><img src="assets/logo-icon.png" alt="" width="14" height="14"></span>
+                    <span class="mini-word">Code<i>Dwara</i></span>
+                    <span class="mini-links"><i></i><i></i><i></i></span>
+                    <span class="mini-cta"></span>
+                  </div>
+                  <div class="mini-hero">
+                    <svg class="mini-arch" viewBox="0 0 120 100" aria-hidden="true"><path d="M28 96V44a32 32 0 0 1 64 0v52" fill="none" stroke="url(#miniGrad)" stroke-width="6"/><defs><linearGradient id="miniGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e6bc73"/><stop offset="100%" stop-color="#8a5f26"/></linearGradient></defs></svg>
+                    <span class="mini-eyebrow"></span>
+                    <span class="mini-line mini-line--lg"></span>
+                    <span class="mini-line mini-line--lg mini-line--short"></span>
+                    <span class="mini-line mini-line--sm"></span>
+                    <span class="mini-btn"></span>
+                  </div>
+                  <div class="mini-grid">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="laptop-base"><span class="laptop-notch"></span></div>
+            </div>
+
+            <div class="device device-phone">
+              <div class="phone-frame">
+                <span class="phone-notch" aria-hidden="true"></span>
+                <div class="phone-screen">
+                  <div class="mini-nav mini-nav--phone">
+                    <span class="mini-mark"><img src="assets/logo-icon.png" alt="" width="12" height="12"></span>
+                    <span class="mini-word mini-word--sm">Code<i>Dwara</i></span>
+                    <span class="mini-burger"><i></i><i></i><i></i></span>
+                  </div>
+                  <div class="mini-hero mini-hero--phone">
+                    <span class="mini-eyebrow"></span>
+                    <span class="mini-line mini-line--lg"></span>
+                    <span class="mini-line mini-line--lg mini-line--short"></span>
+                    <span class="mini-line mini-line--sm"></span>
+                    <span class="mini-btn"></span>
+                  </div>
+                  <div class="mini-stack">
+                    <span></span><span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="showcase-notes stagger">
+            <article class="showcase-note reveal">
+              <span class="note-index">01</span>
+              <div><h3>One system, every width</h3><p>The same type scale, spacing and colour rhythm carry cleanly from a 14" laptop screen down to a phone in your customer's hand.</p></div>
+            </article>
+            <article class="showcase-note reveal">
+              <span class="note-index">02</span>
+              <div><h3>Built for thumbs, not just cursors</h3><p>Navigation, buttons and forms sit where a thumb naturally rests, so mobile visitors can act in a single tap.</p></div>
+            </article>
+            <article class="showcase-note reveal">
+              <span class="note-index">03</span>
+              <div><h3>Quick on an average connection</h3><p>Lightweight code and optimised images keep load times short, even on a modest mobile network.</p></div>
+            </article>
+          </div>
         </div>
       </div>
     </section>
@@ -340,7 +413,7 @@
           <h2>Ready to open a new <i>door?</i></h2>
         </div>
         <div class="cta-actions">
-          <a class="button" href="https://docs.google.com/forms/d/e/1FAIpQLSec82Ncgv_RvZyPYRKFpI6pc29LgiUFrKai3YazqVkfiWA7dA/viewform?usp=publish-editor" target="_blank" rel="noopener">Tell us about your project ↗</a>
+          <a class="button" href="https://docs.google.com/forms/d/e/1FAIpQLSec82Ncgv_RvZyPYRKFpI6pc29LgiUFrKai3YazqVkfiWA7dA/viewform?usp=publish-editor" target="_blank" rel="noopener">Tell us about your project <span class="arrow">↗</span></a>
           <!-- <span>Or WhatsApp us at +91 00000 00000</span> -->
         </div>
       </div>
@@ -350,9 +423,7 @@
   <footer class="footer">
     <div class="wrap">
       <span class="footer-brand">
-        <svg class="brand-icon footer-icon" viewBox="0 0 240 240" aria-hidden="true">
-          <path d="M74 208 V138 A46 46 0 0 1 166 138 V208" fill="none" stroke="#d6a65a" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img class="brand-icon footer-icon" src="assets/logo-icon.png" alt="" width="18" height="18">
         © 2026 CodeDwara. Websites that open doors.
       </span>
       <div class="footer-links">
