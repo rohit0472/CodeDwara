@@ -93,6 +93,7 @@ nav{display:flex;align-items:center;justify-content:space-between}
     .service p{font-size:13px;line-height:1.7;color:var(--body);margin:0}
 
     .featured{position:relative;background:#dbb36d;color:var(--ink);overflow:hidden}
+.featured .eyebrow{color:#68471b}
 .featured:after{content:"CD";position:absolute;right:-19px;bottom:-65px;font-family:'Playfair Display',serif;font-size:260px;line-height:1;color:#c99b51}
 .featured .wrap{position:relative;z-index:1}
 .featured-title{font-size:clamp(35px,4.5vw,52px);letter-spacing:-.04em;line-height:1.08;margin:14px 0}.featured-title i{font-family:'Playfair Display',serif;font-style:italic}.process-intro{font-size:15px;line-height:1.7;max-width:250px}
