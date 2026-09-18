@@ -15,25 +15,39 @@ exports.handler = async (event) => {
   if (!name || !business || !emailPattern.test(email) || !service || message.length < 20) {
     return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Please complete all required fields with valid information.' }) };
   }
-  if (!process.env.WEB3FORMS_ACCESS_KEY) {
-    console.error('WEB3FORMS_ACCESS_KEY is not configured.');
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.CONTACT_FROM_EMAIL;
+  const to = process.env.CONTACT_TO_EMAIL;
+  if (!apiKey || !from || !to) {
+    console.error('Resend environment variables are not fully configured.');
     return { statusCode: 500, body: JSON.stringify({ success: false, message: 'The enquiry form is temporarily unavailable. Please email codedwara@gmail.com.' }) };
   }
   try {
-    const response = await fetch('https://api.web3forms.com/submit', {
+    const details = [
+      `Name: ${name}`,
+      `Business / Brand: ${business}`,
+      `Email: ${email}`,
+      `WhatsApp / Phone: ${clean(body.phone, 30) || 'Not specified'}`,
+      `Plan: ${clean(body.plan, 60) || 'Not specified'}`,
+      `Service: ${service}`,
+      `How they found CodeDwara: ${clean(body.source, 60) || 'Not specified'}`,
+      '',
+      'Project details:',
+      message
+    ].join('\n');
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        access_key: process.env.WEB3FORMS_ACCESS_KEY,
+        from,
+        to: [to],
+        reply_to: email,
         subject: `New CodeDwara project enquiry from ${name}`,
-        from_name: 'CodeDwara website',
-        name, business, email, phone: clean(body.phone, 30), service,
-        plan: clean(body.plan, 60) || 'Not specified',
-        message, source: clean(body.source, 60) || 'Not specified'
+        text: details
       })
     });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok || !result.success) throw new Error(result.message || 'Web3Forms rejected the submission.');
+    if (!response.ok) throw new Error(result.message || result.name || `Resend returned ${response.status}.`);
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true }) };
   } catch (error) {
     console.error('Contact submission failed:', error.message);
