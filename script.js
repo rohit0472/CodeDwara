@@ -23,29 +23,24 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', updateHeader, { passive: true });
 
   const reveals = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) {
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          currentObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+    reveals.forEach((element) => observer.observe(element));
+  } else {
     reveals.forEach((element) => element.classList.add('visible'));
-    return;
   }
-  const observer = new IntersectionObserver((entries, currentObserver) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        currentObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.14 });
-  reveals.forEach((element) => observer.observe(element));
 
-  // Highlight the nav link for the section currently in view.
   const navLinks = Array.from(document.querySelectorAll('#navLinks a[href^="#"]'));
-  const sections = navLinks
-    .map((link) => document.querySelector(link.getAttribute('href')))
-    .filter(Boolean);
+  const sections = navLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
   if (navLinks.length && sections.length && 'IntersectionObserver' in window) {
-    const setActive = (id) => {
-      navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${id}`));
-    };
+    const setActive = (id) => navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${id}`));
     const sectionObserver = new IntersectionObserver((entries) => {
       const visible = entries.filter((entry) => entry.isIntersecting);
       if (visible.length) {
@@ -56,11 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     sections.forEach((section) => sectionObserver.observe(section));
   }
 
-  // A quiet, single tilt interaction on the device showcase — answers cursor movement, doesn't run on its own.
   const stage = document.getElementById('showcaseStage');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (stage && !reduceMotion && window.matchMedia('(hover: hover)').matches) {
-    // Only the laptop tilts here — the phone already breathes with its own float animation.
     const laptop = stage.querySelector('.device-laptop');
     stage.addEventListener('mousemove', (event) => {
       const rect = stage.getBoundingClientRect();
@@ -68,8 +61,44 @@ document.addEventListener('DOMContentLoaded', () => {
       const y = (event.clientY - rect.top) / rect.height - 0.5;
       if (laptop) laptop.style.transform = `rotateY(${x * 6}deg) rotateX(${y * -5}deg)`;
     });
-    stage.addEventListener('mouseleave', () => {
-      if (laptop) laptop.style.transform = '';
-    });
+    stage.addEventListener('mouseleave', () => { if (laptop) laptop.style.transform = ''; });
   }
+
+  const form = document.getElementById('projectForm');
+  const error = document.getElementById('formError');
+  const success = document.getElementById('formSuccess');
+  if (!form || !error || !success) return;
+  const submitButton = form.querySelector('button[type="submit"]');
+  const buttonLabel = form.querySelector('.button-label');
+  const originalLabel = buttonLabel?.textContent;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    error.hidden = true;
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    if (form.elements.companyWebsite.value) return;
+    submitButton.disabled = true;
+    if (buttonLabel) buttonLabel.textContent = 'Sending…';
+    try {
+      const fields = Object.fromEntries(new FormData(form).entries());
+      const response = await fetch('/.netlify/functions/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.success) throw new Error(result.message || 'Unable to send your enquiry. Please try again.');
+      form.hidden = true;
+      success.hidden = false;
+      success.focus();
+    } catch (submissionError) {
+      error.textContent = submissionError.message || 'Unable to send your enquiry. Please try again.';
+      error.hidden = false;
+    } finally {
+      submitButton.disabled = false;
+      if (buttonLabel) buttonLabel.textContent = originalLabel;
+    }
+  });
 });
