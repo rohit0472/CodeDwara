@@ -15,11 +15,12 @@ exports.handler = async (event) => {
   if (!name || !business || !emailPattern.test(email) || !service || message.length < 20) {
     return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Please complete all required fields with valid information.' }) };
   }
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.CONTACT_FROM_EMAIL;
+  const apiKey = process.env.BREVO_API_KEY;
+  const fromEmail = process.env.CONTACT_FROM_EMAIL;
+  const fromName = process.env.CONTACT_FROM_NAME || 'CodeDwara';
   const to = process.env.CONTACT_TO_EMAIL;
-  if (!apiKey || !from || !to) {
-    console.error('Resend environment variables are not fully configured.');
+  if (!apiKey || !fromEmail || !to) {
+    console.error('Brevo environment variables are not fully configured.');
     return { statusCode: 500, body: JSON.stringify({ success: false, message: 'The enquiry form is temporarily unavailable. Please email codedwara@gmail.com.' }) };
   }
   try {
@@ -35,19 +36,23 @@ exports.handler = async (event) => {
       'Project details:',
       message
     ].join('\n');
-    const response = await fetch('https://api.resend.com/emails', {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'api-key': apiKey
+      },
       body: JSON.stringify({
-        from,
-        to: [to],
-        reply_to: email,
+        sender: { email: fromEmail, name: fromName },
+        to: [{ email: to }],
+        replyTo: { email, name },
         subject: `New CodeDwara project enquiry from ${name}`,
-        text: details
+        textContent: details
       })
     });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.message || result.name || `Resend returned ${response.status}.`);
+    if (!response.ok) throw new Error(result.message || `Brevo returned ${response.status}.`);
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true }) };
   } catch (error) {
     console.error('Contact submission failed:', error.message);
