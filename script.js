@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (buttonLabel) buttonLabel.textContent = 'Sending…';
     try {
       const fields = Object.fromEntries(new FormData(form).entries());
-      const response = await fetch('/.netlify/functions/contact', {
+      
+        const response = await fetch('/.netlify/functions/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fields)
