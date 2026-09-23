@@ -1,61 +1,178 @@
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const clean = (value, maxLength) => String(value || '').trim().slice(0, maxLength);
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') return { statusCode: 405, body: JSON.stringify({ success: false, message: 'Method not allowed.' }) };
-  let body;
-  try { body = JSON.parse(event.body || '{}'); } catch { return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Invalid request.' }) }; }
-  if (body.companyWebsite) return { statusCode: 200, body: JSON.stringify({ success: true }) };
+  // Allow only POST requests
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: false,
+        message: 'Method not allowed'
+      })
+    };
+  }
 
-  const name = clean(body.name, 100);
-  const business = clean(body.business, 120);
-  const email = clean(body.email, 254);
-  const service = clean(body.service, 100);
-  const message = clean(body.message, 3000);
-  if (!name || !business || !emailPattern.test(email) || !service || message.length < 20) {
-    return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Please complete all required fields with valid information.' }) };
-  }
-  const apiKey = process.env.BREVO_API_KEY;
-  const fromEmail = process.env.CONTACT_FROM_EMAIL;
-  const fromName = process.env.CONTACT_FROM_NAME || 'CodeDwara';
-  const to = process.env.CONTACT_TO_EMAIL;
-  if (!apiKey || !fromEmail || !to) {
-    console.error('Brevo environment variables are not fully configured.');
-    return { statusCode: 500, body: JSON.stringify({ success: false, message: 'The enquiry form is temporarily unavailable. Please email codedwara@gmail.com.' }) };
-  }
   try {
-    const details = [
-      `Name: ${name}`,
-      `Business / Brand: ${business}`,
-      `Email: ${email}`,
-      `WhatsApp / Phone: ${clean(body.phone, 30) || 'Not specified'}`,
-      `Plan: ${clean(body.plan, 60) || 'Not specified'}`,
-      `Service: ${service}`,
-      `How they found CodeDwara: ${clean(body.source, 60) || 'Not specified'}`,
-      '',
-      'Project details:',
-      message
-    ].join('\n');
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    // Parse request body
+    const data = JSON.parse(event.body || '{}');
+
+    const {
+      name,
+      business,
+      email,
+      service,
+      message,
+      companyWebsite
+    } = data;
+
+    // Honeypot protection
+    if (companyWebsite) {
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: true,
+          message: 'Thanks! Your enquiry has been received.'
+        })
+      };
+    }
+
+    // Validate required fields
+    if (!name || !business || !email || !service || !message) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: false,
+          message: 'Please fill in all required fields.'
+        })
+      };
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: false,
+          message: 'Please enter a valid email address.'
+        })
+      };
+    }
+
+    // Netlify environment variables
+    const apiKey = process.env.BREVO_API_KEY;
+    const fromEmail = process.env.CONTACT_FROM_EMAIL;
+    const fromName = process.env.CONTACT_FROM_NAME || 'CodeDwara';
+    const toEmail = process.env.CONTACT_TO_EMAIL;
+
+    // Check configuration
+    if (!apiKey || !fromEmail || !toEmail) {
+      console.error('Missing Brevo environment variables.');
+
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: false,
+          message: 'Email service is not configured correctly.'
+        })
+      };
+    }
+
+    // Email content
+    const details = `
+New CodeDwara Project Enquiry
+
+Name: ${name}
+Business: ${business}
+Email: ${email}
+Service: ${service}
+
+Message:
+${message}
+    `.trim();
+
+    // Send email through Brevo
+    const brevoResponse = await fetch(BREVO_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
         'api-key': apiKey
       },
       body: JSON.stringify({
-        sender: { email: fromEmail, name: fromName },
-        to: [{ email: to }],
-        replyTo: { email, name },
+        sender: {
+          email: fromEmail,
+          name: fromName
+        },
+        to: [
+          {
+            email: toEmail
+          }
+        ],
+        replyTo: {
+          email: email,
+          name: name
+        },
         subject: `New CodeDwara project enquiry from ${name}`,
         textContent: details
       })
     });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.message || `Brevo returned ${response.status}.`);
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true }) };
+
+    if (!brevoResponse.ok) {
+      const errorText = await brevoResponse.text();
+
+      console.error('Brevo API error:', errorText);
+
+      return {
+        statusCode: 502,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: false,
+          message: 'Unable to send your enquiry right now. Please try again later.'
+        })
+      };
+    }
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: true,
+        message: 'Thanks! Your enquiry has been sent successfully.'
+      })
+    };
+
   } catch (error) {
-    console.error('Contact submission failed:', error.message);
-    return { statusCode: 502, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: false, message: 'Unable to send your enquiry. Please try again.' }) };
+    console.error('Contact function error:', error);
+
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: false,
+        message: 'Something went wrong. Please try again later.'
+      })
+    };
   }
 };
