@@ -23,6 +23,7 @@ exports.handler = async (event) => {
       name,
       business,
       email,
+      phone,
       service,
       message,
       companyWebsite
@@ -101,6 +102,7 @@ New CodeDwara Project Enquiry
 Name: ${name}
 Business: ${business}
 Email: ${email}
+Phone: ${phone}
 Service: ${service}
 
 Message:
